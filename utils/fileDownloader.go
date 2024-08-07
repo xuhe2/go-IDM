@@ -3,24 +3,28 @@ package utils
 import "strings"
 
 type FileDownloader struct {
-	FileName string
-	Size     int64
-	Url      string
-	Threads  int
-	Path     string
+	FileName  string
+	Size      int64
+	Url       string
+	Threads   int
+	Path      string
+	FileParts []FilePart
+	MD5       string
 }
 
-func NewFileDownloader(fileName string, size int64, url string, threads int, path string) *FileDownloader {
+func NewFileDownloader(fileName string, url string, threads int, path string, md5 string) *FileDownloader {
+	// if fileName is empty, extract it from the URL
 	if fileName == "" {
 		fileName = GetFileNameFromUrl(url)
-
 	}
 	return &FileDownloader{
-		FileName: fileName,
-		Size:     size,
-		Url:      url,
-		Threads:  threads,
-		Path:     path,
+		FileName:  fileName,
+		Size:      0,
+		Url:       url,
+		Threads:   threads,
+		Path:      path,
+		FileParts: make([]FilePart, threads),
+		MD5:       md5,
 	}
 }
 
