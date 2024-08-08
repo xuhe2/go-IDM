@@ -1,6 +1,11 @@
 package utils
 
-import "strings"
+import (
+	"errors"
+	"log"
+	"net/http"
+	"path/filepath"
+)
 
 type FileDownloader struct {
 	FileName  string
@@ -28,8 +33,44 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 	}
 }
 
+func (fd *FileDownloader) GetInfo(url string) (int, error) {
+	req := NewHTTPRequest(url)
+	// if req is nil, panic
+	if req == nil {
+		panic("Error creating request")
+	}
+	resp, err := http.DefaultClient.Do(req)
+	// if resp is nil, panic
+	if err != nil {
+		log.Fatalf("Error getting file info: %v", err)
+		panic("Error getting file info")
+	}
+	// get info from response header
+	// check status code
+	if resp.StatusCode >= 300 {
+		return 0, errors.New("Error getting file info: " + resp.Status)
+	}
+	// check Accept-Ranges header
+	if resp.Header.Get("Accept-Ranges") != "bytes" {
+		return 0, errors.New("Error getting file info: " + resp.Header.Get("Accept-Ranges"))
+	}
+	// get content length
+	fd.Size = resp.ContentLength
+	return 0, nil
+}
+
+func NewHTTPRequest(url string) *http.Request {
+	req, err := http.NewRequest("HEADER", url, nil) // create a new request
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+		return nil
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+	return req
+}
+
 // GetFileNameFromUrl extracts the file name from a URL
 func GetFileNameFromUrl(url string) string {
-	fileName := strings.Split(url, "/")[len(strings.Split(url, "/"))-1]
+	fileName := filepath.Base(url) // extract the file name from the URL
 	return fileName
 }
