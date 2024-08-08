@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"log"
+
+	"github.com/xuhe2/go-IDM/utils"
 )
 
 func main() {
@@ -19,9 +21,6 @@ func main() {
 	}
 	url := args[0]
 
-	log.Printf("URL: %s", url)
-	log.Printf("Path: %s", *path)
-	log.Printf("Name: %s", *name)
-	log.Printf("MD5: %s", *md5)
-	log.Printf("Threads: %d", *threads)
+	log.Printf("Starting download of %s with %d threads\n", url, *threads)
+	utils.Download(*name, url, *threads, *path, *md5)
 }

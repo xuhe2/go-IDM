@@ -31,13 +31,16 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 	}
 }
 
-func (fd *FileDownloader) GetInfo(url string) error {
-	req := NewHTTPRequest(url)
+func (fd *FileDownloader) GetInfo() error {
+	// get file info
+	log.Printf("Getting file info from %s\n", fd.Url)
+	// create a new request
+	req := NewHTTPRequest(fd.Url)
 	// if req is nil, panic
 	if req == nil {
 		panic("Error creating request")
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) // do the request
 	// if resp is nil, panic
 	if err != nil {
 		log.Fatalf("Error getting file info: %v", err)
@@ -46,24 +49,27 @@ func (fd *FileDownloader) GetInfo(url string) error {
 	// get info from response header
 	// check status code
 	if resp.StatusCode >= 300 {
-		return errors.New("Error getting file info: " + resp.Status)
+		return errors.New("Status code error: " + resp.Status)
 	}
 	// check Accept-Ranges header
 	if resp.Header.Get("Accept-Ranges") != "bytes" {
-		return errors.New("Error getting file info: " + resp.Header.Get("Accept-Ranges"))
+		return errors.New("Accept-Ranges error" + resp.Header.Get("Accept-Ranges"))
 	}
 	// get file name
-
+	if fd.FileName == "" {
+		fd.FileName = GetFileNameFromUrl(resp)
+	}
+	log.Printf("File name: %s\n", fd.FileName)
 	return nil
 }
 
 func NewHTTPRequest(url string) *http.Request {
-	req, err := http.NewRequest("HEADER", url, nil) // create a new request
+	req, err := http.NewRequest("GET", url, nil) // create a new request
 	if err != nil {
 		log.Fatalf("Error creating request: %v", err)
 		return nil
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64")
 	return req
 }
 
