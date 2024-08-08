@@ -2,6 +2,9 @@ package utils
 
 import (
 	"log"
+	"mime"
+	"net/http"
+	"path/filepath"
 )
 
 func Download(name string, url string, threads int, path string, md5 string) {
@@ -11,4 +14,34 @@ func Download(name string, url string, threads int, path string, md5 string) {
 		log.Printf("Error: %s", err)
 		return
 	}
+}
+
+func NewHTTPRequest(url string, header map[string]string) *http.Request {
+	req, err := http.NewRequest("GET", url, nil) // create a new request
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+		return nil
+	}
+	for key, value := range header {
+		req.Header.Set(key, value)
+	}
+	return req
+}
+
+// GetFileNameFromUrl extracts the file name from a URL
+func GetFileNameFromUrl(response *http.Response) string {
+	// if `Content-Disposition` exist, extract the file name from it
+	if contentDisposition := response.Header.Get("Content-Disposition"); contentDisposition != "" {
+		_, params, err := mime.ParseMediaType(contentDisposition)
+		if err != nil {
+			log.Fatalf("Error parsing content disposition: %v", err)
+			return ""
+		}
+		if fileName, ok := params["filename"]; ok {
+			return fileName
+		}
+	}
+	// if `Content-Type` exist, extract the file name from it
+	fileName := filepath.Base(response.Request.URL.Path) // extract the file name from the URL
+	return fileName
 }
