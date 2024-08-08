@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"log"
+	"mime"
 	"net/http"
 	"path/filepath"
 )
@@ -19,9 +20,6 @@ type FileDownloader struct {
 
 func NewFileDownloader(fileName string, url string, threads int, path string, md5 string) *FileDownloader {
 	// if fileName is empty, extract it from the URL
-	if fileName == "" {
-		fileName = GetFileNameFromUrl(url)
-	}
 	return &FileDownloader{
 		FileName:  fileName,
 		Size:      0,
@@ -33,7 +31,7 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 	}
 }
 
-func (fd *FileDownloader) GetInfo(url string) (int, error) {
+func (fd *FileDownloader) GetInfo(url string) error {
 	req := NewHTTPRequest(url)
 	// if req is nil, panic
 	if req == nil {
@@ -48,15 +46,15 @@ func (fd *FileDownloader) GetInfo(url string) (int, error) {
 	// get info from response header
 	// check status code
 	if resp.StatusCode >= 300 {
-		return 0, errors.New("Error getting file info: " + resp.Status)
+		return errors.New("Error getting file info: " + resp.Status)
 	}
 	// check Accept-Ranges header
 	if resp.Header.Get("Accept-Ranges") != "bytes" {
-		return 0, errors.New("Error getting file info: " + resp.Header.Get("Accept-Ranges"))
+		return errors.New("Error getting file info: " + resp.Header.Get("Accept-Ranges"))
 	}
-	// get content length
-	fd.Size = resp.ContentLength
-	return 0, nil
+	// get file name
+
+	return nil
 }
 
 func NewHTTPRequest(url string) *http.Request {
@@ -70,7 +68,19 @@ func NewHTTPRequest(url string) *http.Request {
 }
 
 // GetFileNameFromUrl extracts the file name from a URL
-func GetFileNameFromUrl(url string) string {
-	fileName := filepath.Base(url) // extract the file name from the URL
+func GetFileNameFromUrl(response *http.Response) string {
+	// if `Content-Disposition` exist, extract the file name from it
+	if contentDisposition := response.Header.Get("Content-Disposition"); contentDisposition != "" {
+		_, params, err := mime.ParseMediaType(contentDisposition)
+		if err != nil {
+			log.Fatalf("Error parsing content disposition: %v", err)
+			return ""
+		}
+		if fileName, ok := params["filename"]; ok {
+			return fileName
+		}
+	}
+	// if `Content-Type` exist, extract the file name from it
+	fileName := filepath.Base(response.Request.URL.Path) // extract the file name from the URL
 	return fileName
 }
