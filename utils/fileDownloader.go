@@ -60,9 +60,9 @@ func (fd *FileDownloader) GetInfo() error {
 	if fd.FileName == "" {
 		fd.FileName = GetFileNameFromUrl(resp)
 	}
-	log.Printf("File name: %s\n", Green(fd.FileName))
+	log.Printf("File name: %s\n", ColorString(fd.FileName, Green))
 	// get file size
 	fd.Size = resp.ContentLength
-	log.Printf("File size: %v \n", Green(Bytes2Size(fd.Size)))
+	log.Printf("File size: %v \n", ColorString(Bytes2Size(fd.Size), Green))
 	return nil
 }
