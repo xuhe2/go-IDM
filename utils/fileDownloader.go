@@ -19,7 +19,7 @@ type FileDownloader struct {
 
 func NewFileDownloader(fileName string, url string, threads int, path string, md5 string) *FileDownloader {
 	// if fileName is empty, extract it from the URL
-	return &FileDownloader{
+	fileDownloader := &FileDownloader{
 		FileName:  fileName,
 		Size:      0,
 		Url:       url,
@@ -27,6 +27,15 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 		Path:      path,
 		FileParts: make([]FilePart, threads),
 		MD5:       md5,
+	}
+	return fileDownloader
+}
+
+func (fd *FileDownloader) Download() {
+	err := fd.GetInfo()
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return
 	}
 }
 

@@ -22,5 +22,6 @@ func main() {
 	url := args[0]
 
 	log.Printf("Starting download of %s with %d threads\n", url, *threads)
-	utils.Download(*name, url, *threads, *path, *md5)
+	fd := utils.NewFileDownloader(*name, url, *threads, *path, *md5)
+	fd.Download()
 }

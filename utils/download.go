@@ -10,15 +10,6 @@ import (
 	"path/filepath"
 )
 
-func Download(name string, url string, threads int, path string, md5 string) {
-	fileDownloader := NewFileDownloader(name, url, threads, path, md5)
-	err := fileDownloader.GetInfo()
-	if err != nil {
-		log.Printf("Error: %s", err)
-		return
-	}
-}
-
 func NewHTTPRequest(url string, header map[string]string) *http.Request {
 	req, err := http.NewRequest("GET", url, nil) // create a new request
 	if err != nil {
