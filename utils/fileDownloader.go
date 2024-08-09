@@ -28,15 +28,30 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 		FileParts: make([]FilePart, threads),
 		MD5:       md5,
 	}
+	// get file info
+	err := fileDownloader.GetInfo()
+	if err != nil {
+		log.Printf("Error: %s", err)
+		return nil
+	}
+	// set file parts
+	eachSize := fileDownloader.Size / int64(fileDownloader.Threads)
+	for i := 0; i < fileDownloader.Threads; i++ {
+		start := int64(i) * eachSize
+		end := start + eachSize - 1
+		// the last part
+		if i == fileDownloader.Threads-1 {
+			end = fileDownloader.Size - 1
+		}
+		// set
+		fileDownloader.FileParts[i].Index = i
+		fileDownloader.FileParts[i].From = start
+		fileDownloader.FileParts[i].To = end
+	}
 	return fileDownloader
 }
 
 func (fd *FileDownloader) Download() {
-	err := fd.GetInfo()
-	if err != nil {
-		log.Printf("Error: %s", err)
-		return
-	}
 }
 
 func (fd *FileDownloader) GetInfo() error {
