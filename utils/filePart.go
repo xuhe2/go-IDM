@@ -2,20 +2,34 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync"
 )
 
 type FilePart struct {
-	Url   string
-	Index int
-	From  int64
-	To    int64
-	Data  []byte
+	Url    string
+	Index  int
+	From   int64
+	To     int64
+	Status string
+	Data   []byte
 	// signal channel for download finish
 	// 0 is success, 1 is failed
 	processSignal chan int
+}
+
+func NewFilePart(url string, index int, from int64, to int64) *FilePart {
+	return &FilePart{
+		Url:           url,
+		Index:         index,
+		From:          from,
+		To:            to,
+		Status:        "Waiting",
+		Data:          nil,
+		processSignal: make(chan int, 1),
+	}
 }
 
 func (fp *FilePart) Download(wg *sync.WaitGroup) {
@@ -31,6 +45,7 @@ func (fp *FilePart) Download(wg *sync.WaitGroup) {
 		return
 	}
 	// start download
+	fp.Status = "Downloading"
 	log.Printf("Start download part %d", fp.Index)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -39,16 +54,17 @@ func (fp *FilePart) Download(wg *sync.WaitGroup) {
 	}
 	defer resp.Body.Close()
 	// read response body
-	size, err := resp.Body.Read(fp.Data)
+	fp.Data, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
 		return
 	}
 	// check response size
-	if int64(size) != fp.To-fp.From+1 {
-		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: expected %d bytes, got %d bytes", fp.Index, fp.To-fp.From+1, size), Red))
+	if int64(len(fp.Data)) != fp.To-fp.From+1 {
+		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: expected %d bytes, got %d bytes", fp.Index, fp.To-fp.From+1, len(fp.Data)), Red))
 		return
 	}
+	fp.Status = "Finished"
 }
 
 func (fp *FilePart) GetProcess() int {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 )
 
 type FileDownloader struct {
@@ -13,7 +14,7 @@ type FileDownloader struct {
 	Url       string
 	Threads   int
 	Path      string
-	FileParts []FilePart
+	FileParts []*FilePart
 	MD5       string
 }
 
@@ -25,7 +26,7 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 		Url:       url,
 		Threads:   threads,
 		Path:      path,
-		FileParts: make([]FilePart, threads),
+		FileParts: make([]*FilePart, threads),
 		MD5:       md5,
 	}
 	// get file info
@@ -43,15 +44,27 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 		if i == fileDownloader.Threads-1 {
 			end = fileDownloader.Size - 1
 		}
-		// set
-		fileDownloader.FileParts[i].Index = i
-		fileDownloader.FileParts[i].From = start
-		fileDownloader.FileParts[i].To = end
+		// new file part
+		fileDownloader.FileParts[i] = NewFilePart(url, i, start, end)
 	}
 	return fileDownloader
 }
 
 func (fd *FileDownloader) Download() {
+	wg := sync.WaitGroup{}
+	for _, part := range fd.FileParts {
+		wg.Add(1)
+		go part.Download(&wg)
+	}
+	wg.Wait()
+	// finish
+	for _, part := range fd.FileParts {
+		if part.Status != "Finished" {
+			log.Printf("Error Status: %s", part.Status)
+			return
+		}
+	}
+	log.Print(ColorString("Download finished", Green))
 }
 
 func (fd *FileDownloader) GetInfo() error {
