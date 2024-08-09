@@ -51,4 +51,9 @@ func (fp *FilePart) Download() {
 		fp.finishSignal <- 1 // download failed
 		return
 	}
+	fp.finishSignal <- 0 // download success
+}
+
+func (fp *FilePart) GetFinishSignal() <-chan int {
+	return fp.finishSignal
 }
