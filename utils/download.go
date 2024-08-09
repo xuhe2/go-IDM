@@ -1,6 +1,9 @@
 package utils
 
+// this file contains the pure function
+
 import (
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -44,4 +47,18 @@ func GetFileNameFromUrl(response *http.Response) string {
 	// if `Content-Type` exist, extract the file name from it
 	fileName := filepath.Base(response.Request.URL.Path) // extract the file name from the URL
 	return fileName
+}
+
+// convert bytes to human readable format
+func Bytes2Size(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }

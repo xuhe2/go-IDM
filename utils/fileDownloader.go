@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -44,8 +45,7 @@ func (fd *FileDownloader) GetInfo() error {
 	resp, err := http.DefaultClient.Do(req) // do the request
 	// if resp is nil, panic
 	if err != nil {
-		log.Fatalf("Error getting file info: %v", err)
-		panic("Error getting file info")
+		panic(fmt.Sprintf("Error getting file info: %v", err))
 	}
 	// get info from response header
 	// check status code
@@ -63,6 +63,6 @@ func (fd *FileDownloader) GetInfo() error {
 	log.Printf("File name: %s\n", fd.FileName)
 	// get file size
 	fd.Size = resp.ContentLength
-	log.Printf("File size: %d bytes\n", fd.Size)
+	log.Printf("File size: %v \n", Bytes2Size(fd.Size))
 	return nil
 }
