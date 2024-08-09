@@ -10,7 +10,7 @@ import (
 func main() {
 	// parse command line arguments
 	threads := flag.Int("t", 1, "number of threads")
-	path := flag.String("p", "./", "path to save file")
+	path := flag.String("p", ".", "path to save file")
 	name := flag.String("n", "", "name of file")
 	md5 := flag.String("md5", "", "calculate md5 hash")
 	flag.Parse()

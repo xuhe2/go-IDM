@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -65,6 +66,27 @@ func (fd *FileDownloader) Download() {
 		}
 	}
 	log.Print(ColorString("Download finished", Green))
+	// merge and write into file
+	fd.MergeAndWrite()
+}
+
+// merge the file parts
+func (fd *FileDownloader) MergeAndWrite() {
+	// open file
+	file, err := os.Create(fd.Path + "/" + fd.FileName)
+	if err != nil {
+		log.Printf("Error creating file: %v", err)
+		return
+	}
+	defer file.Close()
+	// write file parts
+	for _, part := range fd.FileParts {
+		_, err := file.Write(part.Data)
+		if err != nil {
+			log.Printf("Error writing file: %v", err)
+			return
+		}
+	}
 }
 
 func (fd *FileDownloader) GetInfo() error {
