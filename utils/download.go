@@ -22,7 +22,7 @@ func Download(name string, url string, threads int, path string, md5 string) {
 func NewHTTPRequest(url string, header map[string]string) *http.Request {
 	req, err := http.NewRequest("GET", url, nil) // create a new request
 	if err != nil {
-		log.Fatalf("Error creating request: %v", err)
+		log.Printf("Error creating request: %v", err)
 		return nil
 	}
 	for key, value := range header {
@@ -37,7 +37,7 @@ func GetFileNameFromUrl(response *http.Response) string {
 	if contentDisposition := response.Header.Get("Content-Disposition"); contentDisposition != "" {
 		_, params, err := mime.ParseMediaType(contentDisposition)
 		if err != nil {
-			log.Fatalf("Error parsing content disposition: %v", err)
+			log.Printf("Error parsing content disposition: %v", err)
 			return ""
 		}
 		if fileName, ok := params["filename"]; ok {
