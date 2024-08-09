@@ -62,3 +62,8 @@ func Bytes2Size(bytes int64) string {
 	}
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
+
+// string with green color
+func Green(s string) string {
+	return "\033[32m" + s + "\033[0m"
+}
