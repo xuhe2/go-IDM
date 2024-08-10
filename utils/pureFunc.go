@@ -69,3 +69,8 @@ const (
 func ColorString(s string, color string) string {
 	return color + s + Reset
 }
+
+// update the output
+func UpdateOutput(output string) {
+	fmt.Printf("\r%s", output) // update the output
+}

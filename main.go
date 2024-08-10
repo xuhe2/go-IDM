@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"log"
+	"time"
 
 	"github.com/xuhe2/go-IDM/utils"
 )
 
 func main() {
+	nowTime := time.Now()
+
 	// parse command line arguments
 	threads := flag.Int("t", 1, "number of threads")
 	path := flag.String("p", ".", "path to save file")
@@ -27,5 +30,20 @@ func main() {
 	if fd == nil {
 		panic("failed to create file downloader")
 	}
+
+	// show a loading animation
+	loadingStr := "Loading..."
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+			utils.UpdateOutput(loadingStr)
+			loadingStr += "."
+		}
+	}()
+
+	// download the file
 	fd.Download()
+
+	// show the time taken
+	log.Printf("Downloaded in %s", utils.ColorString(time.Since(nowTime).String(), utils.Green))
 }
