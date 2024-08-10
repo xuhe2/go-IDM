@@ -13,6 +13,7 @@ func main() {
 	path := flag.String("p", ".", "path to save file")
 	name := flag.String("n", "", "name of file")
 	md5 := flag.String("md5", "", "calculate md5 hash")
+	force := flag.Bool("f", false, "force download")
 	flag.Parse()
 	args := flag.Args()
 	// check if a url was provided
@@ -22,7 +23,7 @@ func main() {
 	url := args[0]
 
 	log.Printf("Starting download of %s with %d threads\n", url, *threads)
-	fd := utils.NewFileDownloader(*name, url, *threads, *path, *md5)
+	fd := utils.NewFileDownloader(*name, url, *threads, *path, *force, *md5)
 	if fd == nil {
 		panic("failed to create file downloader")
 	}

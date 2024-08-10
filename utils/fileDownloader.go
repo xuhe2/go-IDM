@@ -16,10 +16,11 @@ type FileDownloader struct {
 	Threads   int
 	Path      string
 	FileParts []*FilePart
+	Force     bool
 	MD5       string
 }
 
-func NewFileDownloader(fileName string, url string, threads int, path string, md5 string) *FileDownloader {
+func NewFileDownloader(fileName string, url string, threads int, path string, force bool, md5 string) *FileDownloader {
 	// if fileName is empty, extract it from the URL
 	fileDownloader := &FileDownloader{
 		FileName:  fileName,
@@ -28,6 +29,7 @@ func NewFileDownloader(fileName string, url string, threads int, path string, md
 		Threads:   threads,
 		Path:      path,
 		FileParts: make([]*FilePart, threads),
+		Force:     force,
 		MD5:       md5,
 	}
 	// get file info
@@ -112,7 +114,7 @@ func (fd *FileDownloader) GetInfo() error {
 		return errors.New("Status code error: " + resp.Status)
 	}
 	// check Accept-Ranges header
-	if resp.Header.Get("Accept-Ranges") != "bytes" {
+	if !fd.Force && resp.Header.Get("Accept-Ranges") != "bytes" {
 		return errors.New("Accept-Ranges error" + resp.Header.Get("Accept-Ranges"))
 	}
 	// get file name
