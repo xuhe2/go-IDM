@@ -16,6 +16,7 @@ use `-h` arg to get help docs
 - `-n` to set file name
 - `-p` to set path to save file
 - `-f` to skip check file transfer method
+- `--proxy` to set proxy, eg: `--proxy http://127.0.0.1:1080`
 
 ## example
 
