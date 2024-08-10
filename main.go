@@ -23,5 +23,8 @@ func main() {
 
 	log.Printf("Starting download of %s with %d threads\n", url, *threads)
 	fd := utils.NewFileDownloader(*name, url, *threads, *path, *md5)
+	if fd == nil {
+		panic("failed to create file downloader")
+	}
 	fd.Download()
 }
