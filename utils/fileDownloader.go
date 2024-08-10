@@ -10,28 +10,12 @@ import (
 )
 
 type FileDownloader struct {
-	FileName  string
-	Size      int64
-	Url       string
-	Threads   int
-	Path      string
-	FileParts []*FilePart
-	Force     bool
-	MD5       string
+	FileDownloaderConfig
 }
 
-func NewFileDownloader(fileName string, url string, threads int, path string, force bool, md5 string) *FileDownloader {
+func NewFileDownloader(config FileDownloaderConfig) *FileDownloader {
 	// if fileName is empty, extract it from the URL
-	fileDownloader := &FileDownloader{
-		FileName:  fileName,
-		Size:      0,
-		Url:       url,
-		Threads:   threads,
-		Path:      path,
-		FileParts: make([]*FilePart, threads),
-		Force:     force,
-		MD5:       md5,
-	}
+	fileDownloader := &FileDownloader{FileDownloaderConfig: config}
 	// get file info
 	err := fileDownloader.GetInfo()
 	if err != nil {
@@ -48,7 +32,7 @@ func NewFileDownloader(fileName string, url string, threads int, path string, fo
 			end = fileDownloader.Size - 1
 		}
 		// new file part
-		fileDownloader.FileParts[i] = NewFilePart(url, i, start, end)
+		fileDownloader.FileParts[i] = NewFilePart(fileDownloader.Config.Url, i, start, end)
 	}
 	return fileDownloader
 }
@@ -78,7 +62,7 @@ func (fd *FileDownloader) Download() {
 // merge the file parts
 func (fd *FileDownloader) MergeAndWrite() {
 	// open file
-	file, err := os.Create(fd.Path + "/" + fd.FileName)
+	file, err := os.Create(fd.Config.Path + "/" + fd.FileName)
 	if err != nil {
 		log.Printf("Error creating file: %v", err)
 		return
@@ -96,12 +80,12 @@ func (fd *FileDownloader) MergeAndWrite() {
 
 func (fd *FileDownloader) GetInfo() error {
 	// get file info
-	log.Printf("Getting file info from %s\n", fd.Url)
+	log.Printf("Getting file info from %s\n", fd.Config.Url)
 	// create a new request
 	header := map[string]string{
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64",
 	}
-	req := NewHTTPRequest(fd.Url, header)
+	req := NewHTTPRequest(fd.Config.Url, header)
 	// if req is nil, panic
 	if req == nil {
 		panic("Error creating request")
@@ -117,7 +101,7 @@ func (fd *FileDownloader) GetInfo() error {
 		return errors.New("Status code error: " + resp.Status)
 	}
 	// check Accept-Ranges header
-	if !fd.Force && resp.Header.Get("Accept-Ranges") != "bytes" {
+	if !fd.Config.Force && resp.Header.Get("Accept-Ranges") != "bytes" {
 		return errors.New("Accept-Ranges error" + resp.Header.Get("Accept-Ranges"))
 	}
 	// get file name

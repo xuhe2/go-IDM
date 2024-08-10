@@ -26,7 +26,22 @@ func main() {
 	url := args[0]
 
 	log.Printf("Starting download of %s with %d threads\n", url, *threads)
-	fd := utils.NewFileDownloader(*name, url, *threads, *path, *force, *md5)
+
+	// create a new file downloader config
+	fdConfig := utils.FileDownloaderConfig{
+		Config: utils.Config{
+			Url:   url,
+			Path:  *path,
+			Force: *force,
+		},
+		FileName:  *name,
+		Size:      0,
+		Threads:   *threads,
+		FileParts: make([]*utils.FilePart, *threads),
+		MD5:       *md5,
+	}
+	// create a new file downloader
+	fd := utils.NewFileDownloader(fdConfig)
 	if fd == nil {
 		panic("failed to create file downloader")
 	}
