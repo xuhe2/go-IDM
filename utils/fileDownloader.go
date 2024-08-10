@@ -57,7 +57,10 @@ func (fd *FileDownloader) Download() {
 	wg := sync.WaitGroup{}
 	for _, part := range fd.FileParts {
 		wg.Add(1)
-		go part.Download(&wg)
+		go func() {
+			part.Download()
+			wg.Done()
+		}()
 	}
 	wg.Wait()
 	// finish

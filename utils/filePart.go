@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sync"
 )
 
 type FilePart struct {
@@ -32,8 +31,7 @@ func NewFilePart(url string, index int, from int64, to int64) *FilePart {
 	}
 }
 
-func (fp *FilePart) Download(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (fp *FilePart) Download() {
 	// craete header for http request
 	header := map[string]string{
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64",
