@@ -1,9 +1,12 @@
 package utils
 
+import "net/url"
+
 type Config struct {
 	Url   string
 	Path  string
 	Force bool
+	Proxy *url.URL
 }
 
 type FileDownloaderConfig struct {

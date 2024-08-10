@@ -7,6 +7,7 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"net/url"
 	"path/filepath"
 )
 
@@ -73,4 +74,13 @@ func ColorString(s string, color string) string {
 // update the output
 func UpdateOutput(output string) {
 	fmt.Printf("\r%s", output) // update the output
+}
+
+// convert string into *url.Url
+func Str2ProxyUrl(urlStr string) (*url.URL, error) {
+	proxyURL, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+	return proxyURL, nil
 }

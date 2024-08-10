@@ -45,7 +45,16 @@ func (fp *FilePart) Download() {
 	// start download
 	fp.Status = "Downloading"
 	log.Printf("Start download part %d", fp.Index)
-	resp, err := http.DefaultClient.Do(req)
+	// create http client
+	client := &http.Client{}
+	// set proxy if exist
+	if fp.Config.Proxy != nil {
+		client.Transport = &http.Transport{
+			Proxy: http.ProxyURL(fp.Config.Proxy),
+		}
+	}
+	// send request
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
 		return

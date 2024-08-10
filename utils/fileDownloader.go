@@ -90,7 +90,15 @@ func (fd *FileDownloader) GetInfo() error {
 	if req == nil {
 		panic("Error creating request")
 	}
-	resp, err := http.DefaultClient.Do(req) // do the request
+	// do the request
+	client := http.Client{}
+	// if proxy is set, use it
+	if fd.Config.Proxy != nil {
+		client.Transport = &http.Transport{
+			Proxy: http.ProxyURL(fd.Config.Proxy),
+		}
+	}
+	resp, err := client.Do(req) // do the request
 	// if resp is nil, panic
 	if err != nil {
 		panic(fmt.Sprintf("Error getting file info: %v", err))
