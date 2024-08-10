@@ -32,7 +32,7 @@ func NewFileDownloader(config FileDownloaderConfig) *FileDownloader {
 			end = fileDownloader.Size - 1
 		}
 		// new file part
-		fileDownloader.FileParts[i] = NewFilePart(fileDownloader.Config.Url, i, start, end)
+		fileDownloader.FileParts[i] = NewFilePart(fileDownloader.Config, i, start, end)
 	}
 	return fileDownloader
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type FilePart struct {
-	Url    string
+	Config Config
 	Index  int
 	From   int64
 	To     int64
@@ -19,9 +19,9 @@ type FilePart struct {
 	processSignal chan int
 }
 
-func NewFilePart(url string, index int, from int64, to int64) *FilePart {
+func NewFilePart(config Config, index int, from int64, to int64) *FilePart {
 	return &FilePart{
-		Url:           url,
+		Config:        config,
 		Index:         index,
 		From:          from,
 		To:            to,
@@ -38,7 +38,7 @@ func (fp *FilePart) Download() {
 		"Range":      fmt.Sprintf("bytes=%d-%d", fp.From, fp.To),
 	}
 	// craete a new request
-	req := NewHTTPRequest(fp.Url, header)
+	req := NewHTTPRequest(fp.Config.Url, header)
 	if req == nil {
 		return
 	}
