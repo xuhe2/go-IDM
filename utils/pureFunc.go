@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 )
 
-func NewHTTPRequest(url string, header map[string]string) *http.Request {
-	req, err := http.NewRequest("GET", url, nil) // create a new request
+func NewHTTPRequest(config Config, header map[string]string) *http.Request {
+	req, err := http.NewRequest("GET", config.Url, nil) // create a new request
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		return nil

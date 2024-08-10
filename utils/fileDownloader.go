@@ -85,7 +85,7 @@ func (fd *FileDownloader) GetInfo() error {
 	header := map[string]string{
 		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.64",
 	}
-	req := NewHTTPRequest(fd.Config.Url, header)
+	req := NewHTTPRequest(fd.Config, header)
 	// if req is nil, panic
 	if req == nil {
 		panic("Error creating request")

@@ -38,7 +38,7 @@ func (fp *FilePart) Download() {
 		"Range":      fmt.Sprintf("bytes=%d-%d", fp.From, fp.To),
 	}
 	// craete a new request
-	req := NewHTTPRequest(fp.Config.Url, header)
+	req := NewHTTPRequest(fp.Config, header)
 	if req == nil {
 		return
 	}
