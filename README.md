@@ -17,6 +17,7 @@ use `-h` arg to get help docs
 - `-p` to set path to save file
 - `-f` to skip check file transfer method
 - `--proxy` to set proxy, eg: `--proxy http://127.0.0.1:1080`
+- `--memory` to save tmp file part in memory, default is false
 
 ## example
 
