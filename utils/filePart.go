@@ -55,36 +55,9 @@ func (fp *FilePart) Download() {
 	// download file
 	var fileSize int64
 	if fp.InMemory {
-		// read response body
-		fp.Data, err = io.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
-			return
-		}
-		// get file size
-		fileSize = int64(len(fp.Data))
+		fileSize = fp.save2memory(resp)
 	} else {
-		// write response body to file
-		tmpFile, err := os.CreateTemp("", "go-IDM")
-		if err != nil {
-			log.Printf(ColorString("Error create tmp file %d: %v", Red), fp.Index, err)
-			return
-		}
-		defer tmpFile.Close()
-		// store tmp file name
-		fp.TmpFileName = tmpFile.Name()
-		// craete a bufio.Writer
-		writer := bufio.NewWriter(tmpFile)
-		// write response body to file
-		if fileSize, err = io.Copy(writer, resp.Body); err != nil {
-			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
-			return
-		}
-		// flush bufio.Writer
-		if err := writer.Flush(); err != nil {
-			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
-			return
-		}
+		fileSize = fp.save2disk(resp)
 	}
 	// check response size
 	if fileSize != fp.To-fp.From+1 {
@@ -103,4 +76,46 @@ func (fp *FilePart) Close() {
 
 func (fp *FilePart) GetProcess() int {
 	return <-fp.processSignal
+}
+
+// save file part to memory
+// return file size
+func (fp *FilePart) save2memory(resp *http.Response) int64 {
+	var err error
+	// read response body
+	fp.Data, err = io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
+		return 0
+	}
+	// get file size
+	return int64(len(fp.Data))
+}
+
+// save file part to tmp dir in disk
+// return file size
+func (fp *FilePart) save2disk(resp *http.Response) int64 {
+	// write response body to file
+	tmpFile, err := os.CreateTemp("", "go-IDM")
+	if err != nil {
+		log.Printf(ColorString("Error create tmp file %d: %v", Red), fp.Index, err)
+		return 0
+	}
+	defer tmpFile.Close()
+	// store tmp file name
+	fp.TmpFileName = tmpFile.Name()
+	// craete a bufio.Writer
+	writer := bufio.NewWriter(tmpFile)
+	// write response body to file
+	fileSize, err := io.Copy(writer, resp.Body)
+	if err != nil {
+		log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
+		return 0
+	}
+	// flush bufio.Writer
+	if err := writer.Flush(); err != nil {
+		log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
+		return 0
+	}
+	return fileSize
 }
