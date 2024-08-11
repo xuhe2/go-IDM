@@ -32,7 +32,16 @@ func NewFileDownloader(config FileDownloaderConfig) *FileDownloader {
 			end = fileDownloader.Size - 1
 		}
 		// new file part
-		fileDownloader.FileParts[i] = NewFilePart(fileDownloader.Config, i, start, end)
+		filePartConfig := FilePartConfig{
+			Config:        fileDownloader.Config,
+			Index:         i,
+			From:          start,
+			To:            end,
+			Status:        "Waiting",
+			Data:          nil,
+			processSignal: make(chan int, 1),
+		}
+		fileDownloader.FileParts[i] = NewFilePart(filePartConfig)
 	}
 	return fileDownloader
 }

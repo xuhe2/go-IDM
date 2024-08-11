@@ -10,7 +10,7 @@ type Config struct {
 }
 
 type FileDownloaderConfig struct {
-	Config    Config
+	Config
 	FileName  string
 	Size      int64
 	Threads   int
@@ -19,5 +19,13 @@ type FileDownloaderConfig struct {
 }
 
 type FilePartConfig struct {
-	Config Config
+	Config
+	Index  int
+	From   int64
+	To     int64
+	Status string
+	Data   []byte
+	// signal channel for download finish
+	// 0 is success, 1 is failed
+	processSignal chan int
 }

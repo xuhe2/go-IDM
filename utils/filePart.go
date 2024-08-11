@@ -8,26 +8,12 @@ import (
 )
 
 type FilePart struct {
-	Config Config
-	Index  int
-	From   int64
-	To     int64
-	Status string
-	Data   []byte
-	// signal channel for download finish
-	// 0 is success, 1 is failed
-	processSignal chan int
+	FilePartConfig
 }
 
-func NewFilePart(config Config, index int, from int64, to int64) *FilePart {
+func NewFilePart(config FilePartConfig) *FilePart {
 	return &FilePart{
-		Config:        config,
-		Index:         index,
-		From:          from,
-		To:            to,
-		Status:        "Waiting",
-		Data:          nil,
-		processSignal: make(chan int, 1),
+		FilePartConfig: config,
 	}
 }
 
