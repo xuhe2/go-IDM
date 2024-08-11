@@ -119,7 +119,7 @@ func (fd *FileDownloader) GetInfo() error {
 	}
 	// check Accept-Ranges header
 	if !fd.Config.Force && resp.Header.Get("Accept-Ranges") != "bytes" {
-		return errors.New("Accept-Ranges error" + resp.Header.Get("Accept-Ranges"))
+		return errors.New("Server does not support range requests, use `-f` to force download")
 	}
 	// get file name
 	if fd.FileName == "" {
