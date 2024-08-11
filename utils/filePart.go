@@ -48,7 +48,7 @@ func (fp *FilePart) Download() {
 	// send request
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
+		log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
 		return
 	}
 	defer resp.Body.Close()
@@ -58,7 +58,7 @@ func (fp *FilePart) Download() {
 		// read response body
 		fp.Data, err = io.ReadAll(resp.Body)
 		if err != nil {
-			log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
+			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
 			return
 		}
 		// get file size
@@ -67,7 +67,7 @@ func (fp *FilePart) Download() {
 		// write response body to file
 		tmpFile, err := os.CreateTemp("", "go-IDM")
 		if err != nil {
-			log.Print(ColorString(fmt.Sprintf("Error create tmp file %d: %v", fp.Index, err), Red))
+			log.Printf(ColorString("Error create tmp file %d: %v", Red), fp.Index, err)
 			return
 		}
 		defer tmpFile.Close()
@@ -77,18 +77,18 @@ func (fp *FilePart) Download() {
 		writer := bufio.NewWriter(tmpFile)
 		// write response body to file
 		if fileSize, err = io.Copy(writer, resp.Body); err != nil {
-			log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
+			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
 			return
 		}
 		// flush bufio.Writer
 		if err := writer.Flush(); err != nil {
-			log.Print(ColorString(fmt.Sprintf("Error flush writer %d: %v", fp.Index, err), Red))
+			log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
 			return
 		}
 	}
 	// check response size
 	if fileSize != fp.To-fp.From+1 {
-		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: expected %d bytes, got %d bytes", fp.Index, fp.To-fp.From+1, len(fp.Data)), Red))
+		log.Printf(ColorString("Error downloading part %d: expected %d bytes, got %d bytes", Red), fp.Index, fp.To-fp.From+1, fileSize)
 		return
 	}
 	fp.Status = "Finished"
