@@ -46,11 +46,13 @@ func (fp *FilePart) Download() {
 		return
 	}
 	defer resp.Body.Close()
-	// read response body
-	fp.Data, err = io.ReadAll(resp.Body)
-	if err != nil {
-		log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
-		return
+	if fp.InMemory {
+		// read response body
+		fp.Data, err = io.ReadAll(resp.Body)
+		if err != nil {
+			log.Print(ColorString(fmt.Sprintf("Error downloading part %d: %v", fp.Index, err), Red))
+			return
+		}
 	}
 	// check response size
 	if int64(len(fp.Data)) != fp.To-fp.From+1 {

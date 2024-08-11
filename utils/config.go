@@ -3,10 +3,11 @@ package utils
 import "net/url"
 
 type Config struct {
-	Url   string
-	Path  string
-	Force bool
-	Proxy *url.URL
+	Url      string
+	Path     string
+	Force    bool
+	Proxy    *url.URL
+	InMemory bool
 }
 
 type FileDownloaderConfig struct {
