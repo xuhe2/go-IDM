@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -41,7 +42,7 @@ func NewFileDownloader(config FileDownloaderConfig) *FileDownloader {
 			From:   start,
 			To:     end,
 			Status: "Waiting",
-			Data:   nil,
+			Data:   bytes.Buffer{},
 		}
 		fileDownloader.FileParts[i] = NewFilePart(filePartConfig)
 	}
@@ -88,7 +89,7 @@ func (fd *FileDownloader) MergeAndWrite() {
 	if fd.Config.InMemory {
 		// write file from memory
 		for _, part := range fd.FileParts {
-			_, err := writer.Write(part.Data)
+			_, err := writer.Write(part.Data.Bytes())
 			if err != nil {
 				log.Fatalf(ColorString("Error writing file: %v", Red), err)
 			}

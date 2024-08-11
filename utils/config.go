@@ -1,6 +1,9 @@
 package utils
 
-import "net/url"
+import (
+	"bytes"
+	"net/url"
+)
 
 type Config struct {
 	Url      string
@@ -25,7 +28,7 @@ type FilePartConfig struct {
 	From   int64
 	To     int64
 	Status string
-	Data   []byte
+	Data   bytes.Buffer
 	// tmp file name
 	TmpFileName string
 }

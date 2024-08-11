@@ -79,13 +79,13 @@ func (fp *FilePart) Close() {
 func (fp *FilePart) save2memory(resp *http.Response) int64 {
 	var err error
 	// read response body
-	fp.Data, err = io.ReadAll(resp.Body)
+	fileSize, err := io.Copy(&fp.Data, resp.Body)
 	if err != nil {
 		log.Printf(ColorString("Error downloading part %d: %v", Red), fp.Index, err)
 		return 0
 	}
 	// get file size
-	return int64(len(fp.Data))
+	return fileSize
 }
 
 // save file part to tmp dir in disk
@@ -119,7 +119,7 @@ func (fp *FilePart) save2disk(resp *http.Response) int64 {
 func (fp *FilePart) GetSize() int64 {
 	if fp.InMemory {
 		// get file size from memory
-		return int64(len(fp.Data))
+		return int64(fp.Data.Len())
 	} else {
 		// get file size from disk
 		fileInfo, err := os.Stat(fp.TmpFileName)
