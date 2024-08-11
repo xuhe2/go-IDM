@@ -59,14 +59,8 @@ func main() {
 	}
 
 	// show a loading animation
-	loadingStr := "Loading..."
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			utils.UpdateOutput(loadingStr)
-			loadingStr += "."
-		}
-	}()
+	// show the size of file has been downloaded
+	go fd.ShowProcess()
 
 	// download the file
 	fd.Download()

@@ -26,9 +26,6 @@ type FilePartConfig struct {
 	To     int64
 	Status string
 	Data   []byte
-	// signal channel for download finish
-	// 0 is success, 1 is failed
-	processSignal chan int
 	// tmp file name
 	TmpFileName string
 }

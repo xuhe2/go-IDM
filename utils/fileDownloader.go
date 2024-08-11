@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 )
 
 type FileDownloader struct {
@@ -35,13 +36,12 @@ func NewFileDownloader(config FileDownloaderConfig) *FileDownloader {
 		}
 		// new file part
 		filePartConfig := FilePartConfig{
-			Config:        fileDownloader.Config,
-			Index:         i,
-			From:          start,
-			To:            end,
-			Status:        "Waiting",
-			Data:          nil,
-			processSignal: make(chan int, 1),
+			Config: fileDownloader.Config,
+			Index:  i,
+			From:   start,
+			To:     end,
+			Status: "Waiting",
+			Data:   nil,
 		}
 		fileDownloader.FileParts[i] = NewFilePart(filePartConfig)
 	}
@@ -154,4 +154,21 @@ func (fd *FileDownloader) GetInfo() error {
 	fd.Size = resp.ContentLength
 	log.Printf("File size: %v \n", ColorString(Bytes2Size(fd.Size), Green))
 	return nil
+}
+
+func (fd *FileDownloader) ShowProcess() {
+	totalSize := fd.Size
+	var downloadedSize int64
+	for {
+		// init downloaded size
+		downloadedSize = 0
+		// sleep 1 second
+		time.Sleep(time.Second)
+		// get downloaded size
+		for _, part := range fd.FileParts {
+			downloadedSize += part.GetSize()
+		}
+		// show process
+		UpdateOutput(fmt.Sprintf("Downloaded: %v / %v", ColorString(Bytes2Size(downloadedSize), Green), Bytes2Size(totalSize)))
+	}
 }

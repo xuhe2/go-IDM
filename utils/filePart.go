@@ -74,10 +74,6 @@ func (fp *FilePart) Close() {
 	}
 }
 
-func (fp *FilePart) GetProcess() int {
-	return <-fp.processSignal
-}
-
 // save file part to memory
 // return file size
 func (fp *FilePart) save2memory(resp *http.Response) int64 {
@@ -118,4 +114,19 @@ func (fp *FilePart) save2disk(resp *http.Response) int64 {
 		return 0
 	}
 	return fileSize
+}
+
+func (fp *FilePart) GetSize() int64 {
+	if fp.InMemory {
+		// get file size from memory
+		return int64(len(fp.Data))
+	} else {
+		// get file size from disk
+		fileInfo, err := os.Stat(fp.TmpFileName)
+		if err != nil {
+			log.Printf("Error getting file size: %v", err)
+			return 0
+		}
+		return fileInfo.Size()
+	}
 }
