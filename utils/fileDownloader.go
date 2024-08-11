@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -54,6 +56,8 @@ func (fd *FileDownloader) Download() {
 			part.Download()
 			wg.Done()
 		}()
+		// close file part
+		defer part.Close()
 	}
 	wg.Wait()
 	// finish
@@ -77,12 +81,32 @@ func (fd *FileDownloader) MergeAndWrite() {
 		return
 	}
 	defer file.Close()
+	// create a new writer
+	writer := bufio.NewWriter(file)
+	defer writer.Flush()
 	// write file parts
-	for _, part := range fd.FileParts {
-		_, err := file.Write(part.Data)
-		if err != nil {
-			log.Printf("Error writing file: %v", err)
-			return
+	if fd.Config.InMemory {
+		// write file from memory
+		for _, part := range fd.FileParts {
+			_, err := writer.Write(part.Data)
+			if err != nil {
+				log.Fatalf(ColorString("Error writing file: %v", Red), err)
+			}
+		}
+	} else {
+		// write file from disk
+		for _, part := range fd.FileParts {
+			// open tmp file
+			tmpFile, err := os.Open(part.TmpFileName)
+			if err != nil {
+				log.Fatalf(ColorString("Error opening tmp file when merge: %v", Red), err)
+			}
+			defer tmpFile.Close()
+			// write tmp file into file
+			_, err = io.Copy(writer, tmpFile)
+			if err != nil {
+				log.Fatalf(ColorString("Error writing file when merge: %v", Red), err)
+			}
 		}
 	}
 }

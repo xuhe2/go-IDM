@@ -18,6 +18,7 @@ func main() {
 	md5 := flag.String("md5", "", "calculate md5 hash")
 	force := flag.Bool("f", false, "force download")
 	proxy := flag.String("proxy", "", "proxy server")
+	inMemory := flag.Bool("memory", false, "download file in memory")
 	flag.Parse()
 	args := flag.Args()
 	// check if a url was provided
@@ -31,10 +32,11 @@ func main() {
 	// create a new file downloader config
 	fdConfig := utils.FileDownloaderConfig{
 		Config: utils.Config{
-			Url:   url,
-			Path:  *path,
-			Force: *force,
-			Proxy: nil,
+			Url:      url,
+			Path:     *path,
+			Force:    *force,
+			Proxy:    nil,
+			InMemory: *inMemory,
 		},
 		FileName:  *name,
 		Size:      0,

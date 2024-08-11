@@ -3,10 +3,11 @@ package utils
 import "net/url"
 
 type Config struct {
-	Url   string
-	Path  string
-	Force bool
-	Proxy *url.URL
+	Url      string
+	Path     string
+	Force    bool
+	Proxy    *url.URL
+	InMemory bool
 }
 
 type FileDownloaderConfig struct {
@@ -28,4 +29,6 @@ type FilePartConfig struct {
 	// signal channel for download finish
 	// 0 is success, 1 is failed
 	processSignal chan int
+	// tmp file name
+	TmpFileName string
 }
