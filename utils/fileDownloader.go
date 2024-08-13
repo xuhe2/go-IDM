@@ -167,7 +167,9 @@ func (fd *FileDownloader) ShowProcess() {
 		time.Sleep(time.Second)
 		// get downloaded size
 		for _, part := range fd.FileParts {
-			downloadedSize += part.GetSize()
+			if part.Status == "Downloading" && part.TmpFileName != "" {
+				downloadedSize += part.GetSize()
+			}
 		}
 		// show process
 		UpdateOutput(fmt.Sprintf("Downloaded: %v / %v", ColorString(Bytes2Size(downloadedSize), Green), Bytes2Size(totalSize)))
