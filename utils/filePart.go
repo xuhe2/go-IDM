@@ -9,10 +9,6 @@ import (
 	"os"
 )
 
-const (
-	BUFFER_SIZE = 1024 * 1024
-)
-
 type FilePart struct {
 	FilePartConfig
 }
