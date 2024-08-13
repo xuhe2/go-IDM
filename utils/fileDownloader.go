@@ -160,18 +160,46 @@ func (fd *FileDownloader) GetInfo() error {
 func (fd *FileDownloader) ShowProcess() {
 	totalSize := fd.Size
 	var downloadedSize int64
+	var elapsedTime time.Duration
+
+	startTime := time.Now()
+
 	for {
+		// if all file is finished
+		if fd.IsFinished() {
+			break
+		}
 		// init downloaded size
 		downloadedSize = 0
 		// sleep 1 second
 		time.Sleep(time.Second)
 		// get downloaded size
-		for _, part := range fd.FileParts {
-			if part.Status == "Downloading" && part.TmpFileName != "" {
-				downloadedSize += part.GetSize()
-			}
-		}
-		// show process
-		UpdateOutput(fmt.Sprintf("Downloaded: %v / %v", ColorString(Bytes2Size(downloadedSize), Green), Bytes2Size(totalSize)))
+		downloadedSize = fd.GetDownloadedSize()
+		// 计算下载速度
+		elapsedTime = time.Since(startTime)
+		speed := float64(downloadedSize) / elapsedTime.Seconds()
+
+		// 估算剩余时间
+		remainingSize := totalSize - downloadedSize
+		remainingTime := time.Duration(float64(remainingSize)/speed) * time.Second
+
+		// 显示进度和剩余时间
+		UpdateOutput(fmt.Sprintf("Downloaded: %v / %v, Speed: %v/s, Remaining Time: %v",
+			ColorString(Bytes2Size(downloadedSize), Green),
+			Bytes2Size(totalSize),
+			ColorString(Bytes2Size(int64(speed)), Green),
+			remainingTime))
 	}
+}
+
+func (fd *FileDownloader) IsFinished() bool {
+	return fd.Size == fd.GetDownloadedSize()
+}
+
+func (fd *FileDownloader) GetDownloadedSize() int64 {
+	var downloadedSize int64
+	for _, part := range fd.FileParts {
+		downloadedSize += part.GetSize()
+	}
+	return downloadedSize
 }

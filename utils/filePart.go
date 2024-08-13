@@ -120,7 +120,6 @@ func (fp *FilePart) GetSize() int64 {
 		// get file size from disk
 		fileInfo, err := os.Stat(fp.TmpFileName)
 		if err != nil {
-			log.Printf("Error getting file size: %v", err)
 			return 0
 		}
 		return fileInfo.Size()
