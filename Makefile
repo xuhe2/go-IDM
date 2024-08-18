@@ -2,23 +2,18 @@
 BINARY_NAME=go-IDM
 
 # build the go binary
-build: 
+$(BINARY_NAME): 
+	@echo "Building ${BINARY_NAME}..."
 	@go build -o bin/${BINARY_NAME}
 
+.PHONY: run run-build clean-bin test
 # run the go binary
-run:
+run: $(BINARY_NAME)
 	@bin/${BINARY_NAME} $(ARGS)
-
-# build and run the go binary
-run-build: build run
 
 # clean up the build artifacts
 clean-bin:
 	rm -f bin/${BINARY_NAME}
-
-# clean the storage data
-clean-data:
-	rm -r dataDir
 
 # test the go code
 test:
