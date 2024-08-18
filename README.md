@@ -1,8 +1,10 @@
 # build
 
 ```shell
-make build
+make
 ```
+
+- the binary file will be in `bin` directory
 
 # run
 
