@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"strings"
 )
 
 func NewHTTPRequest(config Config, header map[string]string) *http.Request {
@@ -72,8 +73,12 @@ func ColorString(s string, color string) string {
 }
 
 // update the output
+var lastOutputLength int = 0
+
 func UpdateOutput(output string) {
-	fmt.Printf("\r%s", output) // update the output
+	fmt.Printf("\r%s", strings.Repeat(" ", lastOutputLength)) // clear the output
+	fmt.Printf("\r%s", output)                                // update the output
+	lastOutputLength = len(output)
 }
 
 // convert string into *url.Url
